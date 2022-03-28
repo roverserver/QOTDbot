@@ -13,9 +13,7 @@ var pingRole = process.env.PING_ROLE;
 var count = 0;
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    console.log('Loop beginning');
-    runPost();
-    setInterval(() => runPost(), 86400000);
+    console.log('now listening to Commands');
 });
 
 client.on('message', msg => {
@@ -83,50 +81,6 @@ client.on('message', msg => {
     }
 
 });
-
-function runPost() {
-    try {
-        var file = fs.readFileSync('questions.json')
-        commands = JSON.parse(file);
-        postIt();
-    } catch (er) {
-        console.log(er)
-    }
-}
-
-function postIt() {
-     const embed = {
-        "color": 16312092,
-        "description": `Du hast auch eine Idee für eine <@&${pingRole}>? \nSchick sie einfach [*hier*](${process.env.SUGGESTION_LINK}) rein :D`
-    };
-    if (0 < Object.keys(commands).length) {
-        if (!!commands["0"]) {
-            var question = commands["0"];
-            for (var i = 0; i < Object.keys(commands).length; i++) {
-                commands[i.toString()] = commands[(i + 1).toString()];
-            }
-            delete commands[Object.keys(commands).length.toString()];
-            fs.writeFileSync('questions.json', JSON.stringify(commands))
-            client.channels.cache.get(adminChannel).send(
-                `Entferne Frage \`${question}\` aus der Liste. Länge der Liste: ${(Object.keys(commands).length - 1).toString()}`
-            );
-        }
-	if(count == 4){
-        	client.channels.cache.get(targetChannel).send(`<@&${pingRole}> ${question}`, { embed });
-		count =0;	
-	}
-	else{
-		client.channels.cache.get(targetChannel).send(`<@&${pingRole}> ${question}`);
-		count++;
-	}
-	if(Object.keys(commands).length == 0){
-		client.channels.cache.get(adminChannel).send(`Das war die letzte <@&${pingRole}> in der Liste.`);
-	}
-
-    } else { 	console.log("Keine Frage geladen!"); 
-		client.channels.cache.get(adminChannel).send(`Keine <@&${pingRole}> mehr in der Liste!!!`);
-	}
-}
 
 client.login(process.env.BOT_TOKEN);
 
